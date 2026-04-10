@@ -17,6 +17,7 @@
 variable "access_path" {
   description = "The direction the gateway applies to: ingress (CLIENT_TO_AGENT) or egress (AGENT_TO_ANYWHERE) (if var.is_google_managed = false)."
   type        = string
+  default     = null
 
   validation {
     condition = (
@@ -30,13 +31,13 @@ variable "access_path" {
   validation {
     condition = (
       var.access_path != null
-      && (
+      && !(
         lower(var.access_path) == "egress"
         || lower(var.access_path) == "ingress"
         || var.access_path == "CLIENT_TO_AGENT"
         || var.access_path == "AGENT_TO_ANYWHERE"
       )
-      ? true : false
+      ? false : true
     )
 
     error_message = "access_path can be one of the following: ingress (or CLIENT_TO_AGENT), egress (or AGENT_TO_ANYWHERE)."
@@ -91,11 +92,7 @@ variable "protocols" {
   default     = ["MCP"]
 
   validation {
-    condition = (
-      length(var.protocols) > 0
-      && var.protocols != ["MCP"]
-      ? true : false
-    )
+    condition     = length(var.protocols) == 0 || (length(var.protocols) == 1 && var.protocols[0] == "MCP")
     error_message = "var.protocols can be one of the following: [], [\"MCP\"]"
   }
 }
